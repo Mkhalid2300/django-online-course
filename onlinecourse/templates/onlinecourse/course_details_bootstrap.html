@@ -1,0 +1,32 @@
+{% extends "onlinecourse/user_courses.html" %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="card">
+        <div class="card-header">
+            <h2>{{ course.name }}</h2>
+        </div>
+        <div class="card-body">
+            <p class="card-text">{{ course.description }}</p>
+            <p class="text-muted">Published: {{ course.pub_date }}</p>
+
+            <h4 class="mt-4">Lessons</h4>
+            <div class="list-group">
+                {% for lesson in course.lessons.all %}
+                    <div class="list-group-item">
+                        <h5 class="mb-1">{{ lesson.order }}. {{ lesson.title }}</h5>
+                        <p class="mb-1">{{ lesson.content }}</p>
+                    </div>
+                {% empty %}
+                    <p>No lessons available for this course yet.</p>
+                {% endfor %}
+            </div>
+
+            {% if course.questions.all %}
+                <a href="{% url 'onlinecourse:exam' course.id %}" class="btn btn-primary mt-4">Take the Exam</a>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
