@@ -1,9 +1,9 @@
-from django.shortcuts import render, redirect, get_object_or_404
+from django.shortcuts import render, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponseRedirect
 from django.urls import reverse
 
-from .models import Course, Enrollment, Question, Choice, Submission
+from .models import Course, Enrollment, Submission
 
 
 def course_list(request):
@@ -14,6 +14,14 @@ def course_list(request):
 def course_details(request, course_id):
     course = get_object_or_404(Course, pk=course_id)
     return render(request, 'onlinecourse/course_details_bootstrap.html', {'course': course})
+
+
+@login_required
+def exam(request, course_id):
+    """Displays the exam form with all questions and choices for a course."""
+    course = get_object_or_404(Course, pk=course_id)
+    questions = course.questions.all()
+    return render(request, 'onlinecourse/exam_bootstrap.html', {'course': course, 'questions': questions})
 
 
 @login_required
@@ -28,12 +36,7 @@ def submit(request, course_id):
 
     submission = Submission.objects.create(enrollment=enrollment)
 
-    selected_choices = []
-    for key in request.POST:
-        if key.startswith('choice'):
-            choice_id = request.POST[key]
-            selected_choices.append(choice_id)
-
+    selected_choices = request.POST.getlist('choice')
     submission.choices.set(selected_choices)
 
     return HttpResponseRedirect(
